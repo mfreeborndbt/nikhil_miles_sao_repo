@@ -1,0 +1,337 @@
+version: 2
+
+models:
+  - name: daily_weather_summary
+    description: >
+      Daily weather summary with aggregated min, max, and average values
+      per weather station and variable. Joins timeseries data with station
+      metadata for geographic context.
+    columns:
+      - name: date
+        description: Date of the weather readings
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+      - name: noaa_weather_station_name
+        description: Human-readable name of the weather station
+      - name: state_name
+        description: State where the station is located
+      - name: country_name
+        description: Country where the station is located
+      - name: variable_name
+        description: Name of the weather variable
+        tests:
+          - not_null
+      - name: unit
+        description: Unit of measurement
+      - name: min_value
+        description: Minimum value recorded for the day
+      - name: max_value
+        description: Maximum value recorded for the day
+      - name: avg_value
+        description: Average value for the day
+      - name: reading_count
+        description: Number of readings taken
+        tests:
+          - not_null
+
+  - name: stations_by_state
+    description: >
+      Count of weather stations aggregated by state, including elevation
+      statistics. Useful for understanding station coverage by region.
+    columns:
+      - name: country_name
+        description: Country name
+        tests:
+          - not_null
+      - name: state_name
+        description: State/province name
+        tests:
+          - not_null
+      - name: station_count
+        description: Number of stations in the state
+        tests:
+          - not_null
+
+  - name: stations_by_country
+    description: >
+      Count of weather stations aggregated by country, including geographic
+      spread information (avg lat/long) and state counts.
+    columns:
+      - name: country_name
+        description: Country name
+        tests:
+          - not_null
+      - name: station_count
+        description: Number of stations in the country
+        tests:
+          - not_null
+
+  - name: high_elevation_stations
+    description: >
+      Weather stations located at high elevation (above 2000 meters / ~6500 feet).
+      Useful for mountain weather analysis and alpine climate studies.
+    columns:
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+          - unique
+      - name: elevation
+        description: Elevation in meters (all values >= 2000)
+        tests:
+          - not_null
+
+  - name: temperature_readings
+    description: >
+      Temperature-specific readings from the past month, filtered to include
+      only temperature-related variables. Joined with station metadata.
+    columns:
+      - name: date
+        description: Date of the reading
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Weather station identifier
+        tests:
+          - not_null
+      - name: variable_name
+        description: Temperature variable name (contains 'temp', 'tmax', or 'tmin')
+        tests:
+          - not_null
+      - name: temperature_value
+        description: The temperature reading value
+        tests:
+          - not_null
+
+  - name: precipitation_readings
+    description: >
+      Precipitation-specific readings from the past month, filtered to include
+      rain, snow, and other precipitation variables. Joined with station metadata.
+    columns:
+      - name: date
+        description: Date of the reading
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Weather station identifier
+        tests:
+          - not_null
+      - name: variable_name
+        description: Precipitation variable name
+        tests:
+          - not_null
+
+  - name: state_weather_summary
+    description: >
+      Weather data aggregated at the state level by date and variable.
+      Shows reporting station counts and value statistics per state.
+    columns:
+      - name: country_name
+        description: Country name
+        tests:
+          - not_null
+      - name: state_name
+        description: State/province name
+        tests:
+          - not_null
+      - name: date
+        description: Date of the readings
+        tests:
+          - not_null
+      - name: variable_name
+        description: Weather variable name
+        tests:
+          - not_null
+      - name: reporting_stations
+        description: Number of stations reporting for this state/date/variable
+        tests:
+          - not_null
+
+  - name: variable_catalog
+    description: >
+      Catalog of all available weather variables with their attributes.
+      Use this to understand what metrics are available in the dataset.
+    columns:
+      - name: variable_name
+        description: Human-readable variable name
+        tests:
+          - not_null
+      - name: variable
+        description: Technical variable code
+        tests:
+          - not_null
+      - name: measurement_type
+        description: Type of measurement
+      - name: frequency
+        description: Measurement frequency
+      - name: measure
+        description: What is being measured
+      - name: unit
+        description: Unit of measurement
+
+  - name: station_reading_counts
+    description: >
+      Analysis of reading volume per station. Shows total readings,
+      days with data, and unique variables measured per station.
+    columns:
+      - name: noaa_weather_station_id
+        description: Weather station identifier
+        tests:
+          - not_null
+          - unique
+      - name: total_readings
+        description: Total number of readings from this station
+        tests:
+          - not_null
+      - name: days_with_readings
+        description: Number of distinct days with readings
+        tests:
+          - not_null
+      - name: unique_variables
+        description: Number of different variables measured
+        tests:
+          - not_null
+
+  - name: weather_by_day_of_week
+    description: >
+      Weather patterns analyzed by day of week. Useful for identifying
+      any weekly patterns in weather or reporting behavior.
+    columns:
+      - name: day_of_week_num
+        description: Day of week as number (0=Sunday through 6=Saturday)
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3, 4, 5, 6]
+      - name: day_of_week_name
+        description: Day of week name (e.g., "Monday")
+        tests:
+          - not_null
+      - name: variable_name
+        description: Weather variable name
+        tests:
+          - not_null
+      - name: reading_count
+        description: Number of readings for this day/variable combination
+        tests:
+          - not_null
+
+  - name: extreme_readings
+    description: >
+      Extreme weather readings - top and bottom 1% of values by variable.
+      Useful for identifying outliers, record temperatures, and data quality issues.
+    columns:
+      - name: date
+        description: Date of the extreme reading
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Weather station identifier
+        tests:
+          - not_null
+      - name: variable_name
+        description: Weather variable name
+        tests:
+          - not_null
+      - name: value
+        description: The extreme value recorded
+        tests:
+          - not_null
+      - name: extreme_type
+        description: Whether this is a "Top 1%" or "Bottom 1%" reading
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Top 1%', 'Bottom 1%']
+
+  - name: coastal_stations
+    description: >
+      Weather stations near sea level (elevation < 50 meters).
+      Useful for coastal weather analysis and marine climate studies.
+    columns:
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+          - unique
+      - name: elevation
+        description: Elevation in meters (between 0 and 50)
+        tests:
+          - not_null
+
+  - name: us_weather_stations
+    description: >
+      All weather stations located in the United States.
+      Filtered subset of the station index for US-specific analysis.
+    columns:
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+          - unique
+      - name: noaa_weather_station_name
+        description: Station name
+        tests:
+          - not_null
+      - name: state_name
+        description: US state name
+
+  - name: network_coverage
+    description: >
+      Analysis of weather station network coverage. Shows station counts,
+      geographic spread, and coverage statistics per network.
+    columns:
+      - name: weather_station_network
+        description: Name of the weather station network
+        tests:
+          - not_null
+          - unique
+      - name: station_count
+        description: Number of stations in this network
+        tests:
+          - not_null
+      - name: countries_covered
+        description: Number of countries with stations in this network
+        tests:
+          - not_null
+      - name: states_covered
+        description: Number of states/provinces with stations in this network
+        tests:
+          - not_null
+
+  - name: daily_temperature_range
+    description: >
+      Daily temperature range (difference between max and min) by station.
+      Useful for understanding temperature volatility and climate patterns.
+    columns:
+      - name: date
+        description: Date of the readings
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Weather station identifier
+        tests:
+          - not_null
+      - name: min_temp
+        description: Minimum temperature recorded
+        tests:
+          - not_null
+      - name: max_temp
+        description: Maximum temperature recorded
+        tests:
+          - not_null
+      - name: temp_range
+        description: Temperature range (max - min), always > 0
+        tests:
+          - not_null
+      - name: avg_temp
+        description: Average temperature for the day
+        tests:
+          - not_null
+

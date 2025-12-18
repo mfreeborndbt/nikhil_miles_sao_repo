@@ -1,0 +1,121 @@
+version: 2
+
+models:
+  - name: stg_noaa_weather_metrics_attributes_pit
+    description: >
+      Staging model for NOAA weather metrics attributes. Contains metadata about
+      each weather variable including measurement type, frequency, and units.
+      This is a point-in-time (PIT) table preserving historical states.
+    columns:
+      - name: variable_name
+        description: Human-readable name of the weather variable (e.g., "Average Temperature")
+        tests:
+          - not_null
+      - name: variable
+        description: Technical identifier/code for the weather variable
+        tests:
+          - not_null
+      - name: measurement_type
+        description: Type of measurement (e.g., "average", "maximum", "minimum")
+      - name: frequency
+        description: How often the measurement is taken (e.g., "daily", "hourly")
+      - name: measure
+        description: What is being measured (e.g., "temperature", "precipitation")
+      - name: unit
+        description: Unit of measurement (e.g., "degrees Fahrenheit", "inches")
+      - name: _effective_start_timestamp
+        description: Timestamp when this version of the record became effective
+      - name: _effective_end_timestamp
+        description: Timestamp when this version of the record was superseded
+
+  - name: stg_noaa_weather_metrics_timeseries_pit
+    description: >
+      Staging model for NOAA weather time series data. Contains actual weather
+      readings from stations including temperature, precipitation, and other metrics.
+      Filtered to the past month of data. This is a point-in-time (PIT) table.
+    columns:
+      - name: date
+        description: Date of the weather reading
+        tests:
+          - not_null
+      - name: datetime
+        description: Full timestamp of the weather reading
+      - name: variable_name
+        description: Name of the weather variable being measured
+        tests:
+          - not_null
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_noaa_weather_station_index_pit')
+                field: noaa_weather_station_id
+              config:
+                severity: warn
+      - name: variable
+        description: Technical code for the weather variable
+      - name: value
+        description: The measured value
+        tests:
+          - not_null
+      - name: unit
+        description: Unit of the measurement
+      - name: _effective_start_timestamp
+        description: Timestamp when this version of the record became effective
+      - name: _effective_end_timestamp
+        description: Timestamp when this version of the record was superseded
+
+  - name: stg_noaa_weather_station_index_pit
+    description: >
+      Staging model for NOAA weather station index. Contains metadata about each
+      weather station including location, network affiliation, and geographic details.
+      This is a point-in-time (PIT) table preserving historical states.
+    columns:
+      - name: noaa_weather_station_id
+        description: Unique identifier for the weather station
+        tests:
+          - not_null
+          - unique
+      - name: noaa_weather_station_name
+        description: Human-readable name of the weather station
+        tests:
+          - not_null
+      - name: country_geo_id
+        description: Geographic ID for the country
+      - name: country_name
+        description: Name of the country where the station is located
+        tests:
+          - not_null
+      - name: state_geo_id
+        description: Geographic ID for the state/province
+      - name: state_name
+        description: Name of the state/province where the station is located
+      - name: zip_geo_id
+        description: Geographic ID for the ZIP/postal code area
+      - name: zip_name
+        description: ZIP/postal code name
+      - name: latitude
+        description: Latitude coordinate of the station
+        tests:
+          - not_null
+      - name: longitude
+        description: Longitude coordinate of the station
+        tests:
+          - not_null
+      - name: elevation
+        description: Elevation of the station in meters
+      - name: weather_station_network
+        description: Primary network the station belongs to
+      - name: associated_networks
+        description: Array of all networks the station is associated with
+      - name: world_meteorological_organization_id
+        description: WMO identifier for the station
+      - name: source_data
+        description: Array of source data references
+      - name: _effective_start_timestamp
+        description: Timestamp when this version of the record became effective
+      - name: _effective_end_timestamp
+        description: Timestamp when this version of the record was superseded
+
