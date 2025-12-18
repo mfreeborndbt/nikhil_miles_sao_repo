@@ -25,3 +25,48 @@ target-path: "target"  # directory which will store compiled SQL files
 clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
+
+# ============================================================================
+# POV Model Cost Calculator Configuration
+# https://github.com/dbt-labs/dbt-pov-model-cost-calculator
+# ============================================================================
+
+# Configure the on-run-start hook to create the tracking table
+on-run-start:
+  - "{% if env_var('DBT_ENABLE_MBR_PRE_HOOKS', 'true') | as_bool %}{{ dbt_pov_model_cost_calculator.create_dbt_project_models_table() }}{% endif %}"
+
+# Configure the on-run-end hook to log model executions
+on-run-end:
+  - "{% if env_var('DBT_ENABLE_MBR_MODEL_POST_HOOK', 'true') | as_bool %}{{ dbt_pov_model_cost_calculator.record_dbt_project_models() }}{% endif %}"
+  - "{% if env_var('DBT_ENABLE_MBR_RUN_POST_HOOK', 'true') | as_bool %}{{ dbt_pov_model_cost_calculator.record_dbt_run_data() }}{% endif %}"
+
+# Configure query comments to include comprehensive metadata for cost tracking
+query-comment: "{{ dbt_pov_model_cost_calculator.query_comment(node) }}"
+
+# Model configuration for the cost calculator package
+models:
+  dbt_pov_model_cost_calculator:
+    +schema: pov_model_cost_calculator
+
+# Variables for the POV Model Cost Calculator
+vars:
+  # Schema where the tracking tables will be created
+  artifact_schema: "{{ target.schema }}"
+  
+  # Table name for tracking model executions
+  artifact_table: "dbt_model_executions"
+  
+  # Table name for tracking platform job runs
+  artifact_job_runs_table: "dbt_platform_job_runs"
+  
+  # Batch size for inserting model execution records
+  batch_size: 500
+  
+  # Start date for query monitoring (30 days ago by default)
+  model_monitor_start_date: "{{ (modules.datetime.datetime.now() - modules.datetime.timedelta(days=30)).strftime('%Y-%m-%d') }}"
+  
+  # Cost savings calculator enablement - enabled by default
+  enable_cost_savings_calculator: true
+  
+  # Snowflake credit rate for cost calculations ($3 per credit default)
+  snowflake_credit_rate: 3
