@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: noaa_weather
+    database: SNOWFLAKE_PUBLIC_DATA_FREE
+    schema: PUBLIC_DATA_FREE
+    tables:
+      - name: NOAA_WEATHER_METRICS_ATTRIBUTES_PIT
+      - name: NOAA_WEATHER_METRICS_TIMESERIES_PIT
+      - name: NOAA_WEATHER_STATION_INDEX_PIT
