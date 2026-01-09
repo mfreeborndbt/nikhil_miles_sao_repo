@@ -9,3 +9,5 @@ select
 from {{ ref('stg_noaa_weather_metrics_attributes_pit') }}
 order by variable_name
 
+
+

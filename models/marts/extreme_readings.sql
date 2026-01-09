@@ -32,3 +32,5 @@ from ranked_readings
 where pct_rank <= 0.01 or pct_rank >= 0.99
 order by variable_name, pct_rank
 
+
+

@@ -18,3 +18,5 @@ where lower(ts.variable_name) like '%temp%'
    or lower(ts.variable_name) like '%tmax%'
    or lower(ts.variable_name) like '%tmin%'
 
+
+

@@ -13,3 +13,5 @@ from {{ ref('stg_noaa_weather_station_index_pit') }}
 where country_name = 'United States'
 order by state_name, noaa_weather_station_name
 
+
+

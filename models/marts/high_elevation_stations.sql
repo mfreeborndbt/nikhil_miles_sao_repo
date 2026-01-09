@@ -12,3 +12,5 @@ from {{ ref('stg_noaa_weather_station_index_pit') }}
 where elevation >= 2000
 order by elevation desc
 
+
+

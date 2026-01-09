@@ -17,3 +17,5 @@ where lower(ts.variable_name) like '%prcp%'
    or lower(ts.variable_name) like '%rain%'
    or lower(ts.variable_name) like '%snow%'
 
+
+

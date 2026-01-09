@@ -11,3 +11,5 @@ from {{ ref('stg_noaa_weather_station_index_pit') }}
 group by 1, 2
 order by station_count desc
 
+
+
