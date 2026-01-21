@@ -29,6 +29,9 @@ clean-targets:
 # https://github.com/dbt-labs/dbt-pov-model-cost-calculator
 # ============================================================================
 
+# Add the package query comment to your existing dbt_project.yml query comment
+query-comment: "{{ dbt_pov_model_cost_calculator.query_comment(node) }}"
+
 vars:
   dbt_pov_model_cost_calculator:
     # Start date for query monitoring - fresh start from today
