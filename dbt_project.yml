@@ -34,12 +34,5 @@ query-comment: "{{ dbt_pov_model_cost_calculator.query_comment(node) }}"
 
 vars:
   dbt_pov_model_cost_calculator:
-    # Start date for query monitoring - fresh start from today
-    model_monitor_start_date: '2026-01-14'
     # Schema where the tracking tables will be created
     artifact_schema: "sao_cost_tracking"
-
-models:
-  # Keep the package's outputs (fct_*/rpt_*) in a clean, separate schema
-  dbt_pov_model_cost_calculator:
-    +schema: sao_cost_calculator
