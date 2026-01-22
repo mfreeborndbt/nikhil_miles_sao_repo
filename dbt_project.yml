@@ -32,7 +32,18 @@ clean-targets:
 # Add the package query comment to your existing dbt_project.yml query comment
 query-comment: "{{ dbt_pov_model_cost_calculator.query_comment(node) }}"
 
+
 vars:
+ dbt_pov_model_cost_calculator:
+   # Optional: restrict reporting window to recent runs
+   model_monitor_start_date: '2026-01-21'
+   # Optional: Customize schema where the tracking tables will be created
+   artifact_schema: "pov_model_cost_tracking"
+
+models:
+  # Materialize all project models as tables
+  my_new_project:
+    +materialized: table
+  # Keep the package's outputs (fct_*/rpt_*) in a clean, separate schema
   dbt_pov_model_cost_calculator:
-    # Schema where the tracking tables will be created
-    artifact_schema: "sao_cost_tracking"
+    +schema: pov_model_cost_calculator
