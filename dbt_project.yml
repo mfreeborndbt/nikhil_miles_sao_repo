@@ -36,7 +36,7 @@ query-comment: "{{ dbt_pov_model_cost_calculator.query_comment(node) }}"
 vars:
  dbt_pov_model_cost_calculator:
    # Optional: restrict reporting window to recent runs
-   model_monitor_start_date: '2026-01-21'
+   model_monitor_start_date: '2026-01-25'
    # Optional: Customize schema where the tracking tables will be created
    artifact_schema: "pov_model_cost_tracking"
 
